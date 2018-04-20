@@ -1,97 +1,27 @@
-# Getting-and-Cleaning-Data-Course-Project
+Here are the data for the project:
 
+https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 
-rm(list = ls())
+You should create one R script called run_analysis.R that does the following.
 
-## Reading all necessary files from test and training folders
+Merges the training and the test sets to create one data set.
+Extracts only the measurements on the mean and standard deviation for each measurement.
+Uses descriptive activity names to name the activities in the data set
+Appropriately labels the data set with descriptive variable names.
+From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-    xtest <- read.table("X_test.txt")
+Steps to read the tidy data set
 
-    ytest <- read.table("y_test.txt")
+Download the data source and put into a folder on your local drive. You'll have a UCI HAR Dataset folder.
 
-   xtrain <- read.table("X_train.txt")
+1- Please copy the following files from the test and train sets in the parent foler of UCI HAR Dataset
 
-   ytrain <- read.table("y_train.txt")
+X_test.txt, y_test.txt, X_train.txt, y_train.txt, features.txt, subject_test.txt, subject_train.txt, activity_labels.txt
 
- features <- read.table("features.txt")
+2- Download run_analysis.R in the parent folder of UCI HAR Dataset, then set it as your working directory using setwd() function in RStudio.
 
- subjtest <- read.table("subject_test.txt")
+3- Please load dplyr and data.table libraries in RSudio
 
-subjtrain <- read.table("subject_train.txt")
+4- Run source("run_analysis.R"), then it will generate a new file called tidyds.txt in your working directory.
 
-actlabels <- read.table("activity_labels.txt") 
-
-## 1 -- Merging test and training sets
-
-       mgds <- merge(xtest, xtrain, all = TRUE)
-       
-   ## rename the columns variables of mgds data set
-
-names(mgds) <- features$V2
-
-## 2 -- Extracting only the measurements on mean and standard deviation 
-
-meancols <- grep("mean\\(\\)", colnames(mgds), value = TRUE)
-
- stdcols <- grep("std\\(\\)", colnames(mgds), value = TRUE)
-
-  xtmean <- mgds[meancols]
-
-   xtstd <- mgds[stdcols]
-
-    xtds <- as.data.table(cbind.data.frame(xtmean, xtstd)) 
-
-## 3 -- Apply descriptive activity names in the data set
-
-rnames <- tolower(names(xtds))
-
-rnames <- gsub("-", "", rnames)
-
-rnames <- gsub("\\(\\)", "", rnames)
-
-names(xtds) <- rnames
-
-## 4-- Appropriately labels the data set with descriptive variable names
-
-activity <- rbind(ytest, ytrain)
-
-names(activity) <- "activities"
-
-lbds <- as.data.table(cbind(activity, xtds))
-
-## convert activities columns from interger to factor
-
-lbds$activities <- factor(lbds$activities, labels = c("Walking", "WalkingUpStairs", "WalkingDownStairs","Sitting","Standing", "Laying"))
-
-## 5-- Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-
-## Create the subject data frame
-   
-subject <- rbind(subjtest, subjtrain)
-
-## rename the column variable to subjectID 
-
-names(subject) <- "subjectID"
-
-## Add subjectID to lbds data set
-
-lbds <- cbind(subject, lbds)
-
-## Create a melted data set
-
-meltds <- melt(lbds, id = c("subjectID","activities"))
-
-## Create the independent tidy data set
-
-tidyds <- dcast(meltds, subjectID+activities ~ variable, mean)
-
-## write tidy data set to a file
-
-write.table(tidyds, file = "tidyds.txt", row.names = FALSE, append = FALSE, quote = TRUE, sep = " ",
-            eol = "\n", na = "NA", dec = ".", col.names = TRUE, qmethod = c("escape", "double"),
-            fileEncoding = "")
-
-
-
-
-
+5- Read the the file tidyds.txt in RStudio and use the function view() for a better ouput
